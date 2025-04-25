@@ -36,11 +36,14 @@ def main():
         screen.fill("black")
 
         for asteroid in asteroids:
-            if asteroid.collision(player) == False:
-                pass
-            else:
+            if asteroid.collision(player) == True:
                 print("Game Over")
                 sys.exit()
+
+            for shot in shots:
+                if asteroid.collision(shot) == True:
+                    shot.kill()
+                    asteroid.split()
 
         for drawable in drawables:
             drawable.draw(screen)
