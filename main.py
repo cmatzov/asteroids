@@ -61,6 +61,19 @@ def main():
                     if remaining_lives == 0:
                         game = "stopped"
 
+                normals = [ast for ast in asteroids if not isinstance(ast, Boss)]
+                bosses = [ast for ast in asteroids if isinstance(ast, Boss)]
+                for boss in bosses:
+                    for norm in normals:
+                        if boss.collision(norm):
+                            boss.bounce_away_other(norm)
+
+                for norm in normals:
+                    if norm == asteroid:
+                        pass
+                    if norm.collision(asteroid) == 1:
+                        asteroid.bounce(norm)
+
                 for other in asteroids:
                     if asteroid == other:
                         pass

@@ -8,9 +8,6 @@ class Boss(Asteroid):
         self.radius = ASTEROID_MAX_RADIUS * 3
         super().__init__(x, y, self.radius)
 
-    def draw(self, screen):
-        pygame.draw.circle(screen, "white", self.position, self.radius, 2)
-
     def split(self):
         self.kill()
         asteroid = Asteroid(self.position.x, self.position.y, ASTEROID_MAX_RADIUS)
@@ -21,3 +18,13 @@ class Boss(Asteroid):
         asteroid.velocity = self.velocity.rotate(random.uniform(-30, -50)) * 1.2
         asteroid = Asteroid(self.position.x, self.position.y, ASTEROID_MAX_RADIUS)
         asteroid.velocity = self.velocity.rotate(random.uniform(-30, -50)) * 1.2
+
+    def bounce_away_other(self, other):
+        delta = other.position - self.position
+        dist = delta.length() or 1
+        normal = delta.normalize()
+
+        overlap = (other.radius + self.radius) - dist + 1
+        other.position += normal * overlap
+
+        other.velocity = other.velocity.reflect(normal)
