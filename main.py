@@ -1,10 +1,12 @@
 import pygame
+import sys
 from player import Player
 from asteroid import Asteroid
+from bossAsteroid import Boss
 from asteroidfield import AsteroidField
 from constants import *
 from bullets import Shot
-import sys
+from text import Text
 
 def main():
     pygame.init()
@@ -17,39 +19,91 @@ def main():
     shots = pygame.sprite.Group()
 
     Asteroid.containers = (asteroids, updatables, drawables)
+    Boss.containers = (asteroids, updatables, drawables)
     Player.containers = (drawables, updatables)
     AsteroidField.containers = (updatables)
     Shot.containers = (shots, drawables, updatables)
 
+    dt = 0
+    points = 0
+    remaining_lives = 3
+    wait_time = 0
+    game = "running"
+
     asteroidField = AsteroidField()
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-
-    dt = 0
+    game_over = Text("Game Over", (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2), 96, (255, 0, 0))
+    press_key = Text("Press Enter to Play Again or any other key to exit", (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2), 48, (255, 0, 0))
+    score = Text(f"Score: {points}", (50, SCREEN_HEIGHT - 20), 30, (255, 0, 0))
+    lives = Text(f"Lives: {remaining_lives}", (SCREEN_WIDTH - 50, SCREEN_HEIGHT - 20), 30, (255, 0, 0))
 
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return
+        if game == "running":
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return
 
-        updatables.update(dt)
+            updatables.update(dt)
 
-        screen.fill("black")
+            screen.fill("black")
 
-        for asteroid in asteroids:
-            if asteroid.collision(player) == True:
-                print("Game Over")
-                sys.exit()
+            score.draw(screen, 0)
+            lives.draw(screen, 0)
 
-            for shot in shots:
-                if asteroid.collision(shot) == True:
-                    shot.kill()
-                    asteroid.split()
+            for asteroid in asteroids:
 
-        for drawable in drawables:
-            drawable.draw(screen)
+                asteroidField.clear(asteroid)
 
-        pygame.display.flip()
-        dt = clock.tick(60) / 1000
+                if asteroid.collision(player) == 1:
+                    remaining_lives -= 1
+                    lives.update_text(f"Lives: {remaining_lives}")
+                    asteroid.kill()
+                    if remaining_lives == 0:
+                        game = "stopped"
+
+                for other in asteroids:
+                    if asteroid == other:
+                        pass
+                    if asteroid.collision(other) == 1:
+                        asteroid.bounce(other)
+
+                for shot in shots:
+                    asteroidField.clear(shot)
+
+                    if asteroid.collision(shot) == 1:
+                        shot.kill()
+                        asteroid.hits += 1
+                        if asteroid.hits == asteroid.max_hits:
+                            points += asteroid.update_score(asteroid.radius)
+                            asteroid.split()
+                            score.update_text(f"Score: {points}")
+
+            for drawable in drawables:
+                drawable.draw(screen)
+
+            pygame.display.flip()
+            dt = clock.tick(60) / 1000
+
+        elif game == "stopped":
+            score = Text(f"Your score: {points}", (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2), 30, (255, 0, 0))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return
+
+            screen.fill("black")
+
+            game_over.draw(screen, 50)
+            press_key.draw(screen, -50)
+            score.draw(screen, -100)
+
+            wait_time += dt
+            if wait_time > 1:
+                keys = pygame.key.get_pressed()
+                if any(keys):
+                    sys.exit()
+
+            pygame.display.flip()
+            dt = clock.tick(60) / 1000
 
 if __name__ == "__main__":
     main()

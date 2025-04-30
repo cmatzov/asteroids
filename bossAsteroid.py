@@ -1,0 +1,23 @@
+import pygame
+import random
+from asteroid import Asteroid
+from constants import *
+
+class Boss(Asteroid):
+    def __init__(self, x, y):
+        self.radius = ASTEROID_MAX_RADIUS * 3
+        super().__init__(x, y, self.radius)
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, "white", self.position, self.radius, 2)
+
+    def split(self):
+        self.kill()
+        asteroid = Asteroid(self.position.x, self.position.y, ASTEROID_MAX_RADIUS)
+        asteroid.velocity = self.velocity.rotate(random.uniform(10, 30)) * 1.2
+        asteroid = Asteroid(self.position.x, self.position.y, ASTEROID_MAX_RADIUS)
+        asteroid.velocity = self.velocity.rotate(random.uniform(-10, -30)) * 1.2
+        asteroid = Asteroid(self.position.x, self.position.y, ASTEROID_MAX_RADIUS)
+        asteroid.velocity = self.velocity.rotate(random.uniform(-30, -50)) * 1.2
+        asteroid = Asteroid(self.position.x, self.position.y, ASTEROID_MAX_RADIUS)
+        asteroid.velocity = self.velocity.rotate(random.uniform(-30, -50)) * 1.2
