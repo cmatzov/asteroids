@@ -10,7 +10,10 @@ from text import Text
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH * 1.2, SCREEN_HEIGHT * 1.2)) # * 1.2 For Debugging
+
+    info = pygame.display.Info()
+    width, height = info.current_w, info.current_h
+    screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
     clock = pygame.time.Clock()
 
     drawables = pygame.sprite.Group()
@@ -32,18 +35,21 @@ def main():
     wait_time = 0
     game = "running"
 
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    player = Player(width / 2, height / 2)
     asteroidField = AsteroidField(player.position)
-    game_over = Text("Game Over", (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2), 96, (255, 0, 0))
-    press_key = Text("Press Enter to Play Again or any other key to exit", (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2), 48, (255, 0, 0))
-    score = Text(f"Score: {points}", (50, SCREEN_HEIGHT - 20), 30, (255, 0, 0))
-    lives = Text(f"Lives: {remaining_lives}", (SCREEN_WIDTH - 50, SCREEN_HEIGHT - 20), 30, (255, 0, 0))
+    game_over = Text("Game Over", (width // 2, height // 2), 96, (255, 0, 0))
+    press_key = Text("Press Enter to Play Again or any other key to exit", (width // 2, height // 2), 48, (255, 0, 0))
+    score = Text(f"Score: {points}", (50, height - 20), 30, (255, 0, 0))
+    lives = Text(f"Lives: {remaining_lives}", (width - 50, height - 20), 30, (255, 0, 0))
 
     while True:
         if game == "running":
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return
+            esc_key = pygame.key.get_pressed()
+            if esc_key[pygame.K_ESCAPE]:
+                sys.exit()
 
             updatables.update(dt)
             asteroidField.update(player.position)
@@ -99,7 +105,7 @@ def main():
             dt = clock.tick(60) / 1000
 
         elif game == "stopped":
-            score = Text(f"Your score: {points}", (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2), 30, (255, 0, 0))
+            score = Text(f"Your score: {points}", (width // 2, height // 2), 30, (255, 0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return

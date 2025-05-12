@@ -54,7 +54,6 @@ class AsteroidField(pygame.sprite.Sprite):
     def spawn(self, dt, CircleShape, ignore_timer=False):
         edge = random.choice(self.edges)
         spawn_point = Coordinates(edge, self.player_position)
-        print(spawn_point.coordinates())
         self.spawn_timer += dt
         if self.spawn_timer > ASTEROID_SPAWN_RATE or ignore_timer == True:
             CircleShape.spawn(spawn_point.coordinates())
