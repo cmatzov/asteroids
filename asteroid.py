@@ -8,12 +8,22 @@ class Asteroid(CircleShape):
         super().__init__(x, y, radius)
         self.hits = 0
         self.max_hits = self.radius / 20
-    
+
     def draw(self, screen):
         pygame.draw.circle(screen, "white", self.position, self.radius, 2)
 
     def update(self, dt):
         self.position += (self.velocity * dt)
+    
+    @staticmethod
+    def spawn(Coordinates):
+        speed = random.randint(40, 100)
+        velocity = Coordinates[0][0] * speed
+        velocity = velocity.rotate(random.randint(-30, 30))
+        position = Coordinates[0][1](random.uniform(0, 1))
+        kind = random.randint(1, ASTEROID_KINDS)
+        asteroid = Asteroid(position.x, position.y, ASTEROID_MIN_RADIUS * kind)
+        asteroid.velocity = velocity
 
     def split(self):
         self.kill()

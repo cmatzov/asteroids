@@ -1,9 +1,16 @@
 import pygame
 import random
-from asteroid import Asteroid
-from bossAsteroid import Boss
 from constants import *
+from dataclasses import dataclass
 
+@dataclass
+class Coordinates():
+    def __init__(self, edge, player_position):
+        self.edge = edge
+        self.player_position = player_position
+    
+    def coordinates(self):
+        return self.edge, self.player_position
 
 class AsteroidField(pygame.sprite.Sprite):
     edges = [
@@ -29,10 +36,13 @@ class AsteroidField(pygame.sprite.Sprite):
         ],
     ]
 
-    def __init__(self):
+    def __init__(self, player_position):
         pygame.sprite.Sprite.__init__(self, self.containers)
-        self.spawn_timer = 0.0
-        self.boss_timer = 0.0
+        self.spawn_timer = ASTEROID_SPAWN_RATE
+        self.player_position = player_position
+    
+    def update(self, player_moved):
+        self.player_position = player_moved
 
     def clear(self, CircleShape):
         if (CircleShape.position.x < 0 - ASTEROID_MAX_RADIUS * 4
@@ -41,29 +51,11 @@ class AsteroidField(pygame.sprite.Sprite):
            or CircleShape.position.y > SCREEN_HEIGHT + ASTEROID_MAX_RADIUS * 4):
             CircleShape.kill()
 
-    def update(self, dt):
+    def spawn(self, dt, CircleShape, ignore_timer=False):
+        edge = random.choice(self.edges)
+        spawn_point = Coordinates(edge, self.player_position)
+        print(spawn_point.coordinates())
         self.spawn_timer += dt
-        if self.spawn_timer > ASTEROID_SPAWN_RATE:
-            self.spawn_timer = 0
-
-            # spawn a new asteroid at a random edge
-            edge = random.choice(self.edges)
-            speed = random.randint(40, 100)
-            velocity = edge[0] * speed
-            velocity = velocity.rotate(random.randint(-30, 30))
-            position = edge[1](random.uniform(0, 1))
-            kind = random.randint(1, ASTEROID_KINDS)
-            asteroid = Asteroid(position.x, position.y, ASTEROID_MIN_RADIUS * kind)
-            asteroid.velocity = velocity
-
-        self.boss_timer += dt
-        if self.boss_timer > ASTEROID_SPAWN_RATE * 10:
-            self.boss_timer = 0
-
-            edge = random.choice(self.edges)
-            speed = random.randint(1, 40)
-            velocity = edge[0] * speed
-            velocity = velocity.rotate(random.randint(-30, 30))
-            position = edge[1](random.uniform(0, 1))
-            boss = Boss(position.x, position.y)
-            boss.velocity = velocity
+        if self.spawn_timer > ASTEROID_SPAWN_RATE or ignore_timer == True:
+            CircleShape.spawn(spawn_point.coordinates())
+            self.spawn_timer = 0.0

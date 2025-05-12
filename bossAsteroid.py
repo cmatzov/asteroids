@@ -1,5 +1,6 @@
-import pygame
 import random
+import pygame
+import math
 from asteroid import Asteroid
 from constants import *
 
@@ -7,6 +8,22 @@ class Boss(Asteroid):
     def __init__(self, x, y):
         self.radius = ASTEROID_MAX_RADIUS * 3
         super().__init__(x, y, self.radius)
+
+    def calculate_angle_to_player(Coordinates):
+        dx = Coordinates[1][0] - Coordinates[0][0][0]
+        dy = Coordinates[1][1] - Coordinates[0][0][1]
+        angle_rad = math.atan2(dy, dx)
+        angle_deg = math.degrees(angle_rad)
+        return angle_deg
+
+    @staticmethod
+    def spawn(Coordinates):
+        speed = random.randint(40, 60)
+        velocity = Coordinates[0][0] * speed
+        velocity = velocity.rotate(Boss.calculate_angle_to_player(Coordinates))
+        position = Coordinates[0][1](random.uniform(0, 1))
+        boss = Boss(position.x, position.y)
+        boss.velocity = velocity
 
     def split(self):
         self.kill()
