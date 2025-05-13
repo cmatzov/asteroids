@@ -31,16 +31,15 @@ def main():
     dt = 0
     points = 0
     boss_points = 100
-    remaining_lives = 3
     wait_time = 0
     game = "running"
 
     player = Player(width / 2, height / 2)
     asteroidField = AsteroidField(player.position, width, height)
-    game_over = Text("Game Over", (width // 2, height // 2), 96, (255, 0, 0))
-    press_key = Text("Press Enter to Play Again or any other key to exit", (width // 2, height // 2), 48, (255, 0, 0))
-    score = Text(f"Score: {points}", (50, height - 20), 30, (255, 0, 0))
-    lives = Text(f"Lives: {remaining_lives}", (width - 50, height - 20), 30, (255, 0, 0))
+    game_over = Text("game over", (width // 2, height // 2), 96, (255, 255, 0))
+    press_key = Text("press any key to continue...", (width // 2, height // 2), 48, (255, 255, 0))
+    score = Text(f"score: {points}", (100, height - 20), 30, (255, 255, 0))
+    lives = Text(f"lives: {player.lives}", (width - 100, height - 20), 30, (255, 255, 0))
 
     while True:
         if game == "running":
@@ -67,10 +66,10 @@ def main():
             for asteroid in asteroids:
                 asteroidField.clear(asteroid, width, height)
                 if asteroid.collision(player) == 1:
-                    remaining_lives -= 1
-                    lives.update_text(f"Lives: {remaining_lives}")
+                    player.lives -= 1
+                    lives.update_text(f"Lives: {player.lives}")
                     asteroid.kill()
-                    if remaining_lives == 0:
+                    if player.lives == 0:
                         game = "stopped"
                 normals = [ast for ast in asteroids if not isinstance(ast, Boss)]
                 bosses = [ast for ast in asteroids if isinstance(ast, Boss)]
@@ -92,8 +91,8 @@ def main():
                     asteroidField.clear(shot, width, height)
                     if asteroid.collision(shot) == 1:
                         shot.kill()
-                        asteroid.hits += 1
-                        if asteroid.hits == asteroid.max_hits:
+                        asteroid.health -= shot.damage
+                        if asteroid.health == 0:
                             points += asteroid.update_score(asteroid.radius)
                             asteroid.split()
                             score.update_text(f"Score: {points}")
@@ -105,7 +104,7 @@ def main():
             dt = clock.tick(60) / 1000
 
         elif game == "stopped":
-            score = Text(f"Your score: {points}", (width // 2, height // 2), 30, (255, 0, 0))
+            score = Text(f"Your score: {points}", (width // 2, height // 2), 30, (255, 255, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return

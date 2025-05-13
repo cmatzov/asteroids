@@ -8,13 +8,6 @@ class Boss(Asteroid):
         self.radius = ASTEROID_MAX_RADIUS * 3
         super().__init__(x, y, self.radius)
 
-    def calculate_angle_to_player(Coordinates):
-        dx = Coordinates[1][0] - Coordinates[0][0][0]
-        dy = Coordinates[1][1] - Coordinates[0][0][1]
-        angle_rad = math.atan2(dy, dx)
-        angle_deg = math.degrees(angle_rad)
-        return angle_deg
-
     @staticmethod
     def spawn(Coordinates):
         speed = random.randint(40, 60)

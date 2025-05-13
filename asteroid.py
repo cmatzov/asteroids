@@ -7,7 +7,7 @@ class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
         self.hits = 0
-        self.max_hits = self.radius / 20
+        self.health = self.radius / 20
 
     def draw(self, screen):
         pygame.draw.circle(screen, "white", self.position, self.radius, 2)

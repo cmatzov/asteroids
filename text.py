@@ -2,11 +2,11 @@ import pygame
 from constants import *
 
 class Text():
-    def __init__(self, text, position, font_size=36, color=(255, 255, 255)):
+    def __init__(self, text, position, font_size=36, color=(255, 255, 0)):
         self.text = text
         self.position = position
         self.color = color
-        self.font = pygame.font.Font(None, font_size)
+        self.font = pygame.font.Font("fonts/star_jedi/starjedi/Starjhol.ttf", font_size)
         self.rendered_text = self.font.render(self.text, True, self.color)
 
     def draw(self, surface, y):
