@@ -13,42 +13,41 @@ class Coordinates():
         return self.edge, self.player_position
 
 class AsteroidField(pygame.sprite.Sprite):
-    edges = [
+    def __init__(self, player_position, width, height):
+        pygame.sprite.Sprite.__init__(self, self.containers)
+        self.spawn_timer = ASTEROID_SPAWN_RATE
+        self.player_position = player_position
+        self.edges = [
         [
             pygame.Vector2(1, 0),
-            lambda y: pygame.Vector2(-ASTEROID_MAX_RADIUS, y * SCREEN_HEIGHT),
+            lambda y: pygame.Vector2(-ASTEROID_MAX_RADIUS, y * height),
         ],
         [
             pygame.Vector2(-1, 0),
             lambda y: pygame.Vector2(
-                SCREEN_WIDTH + ASTEROID_MAX_RADIUS, y * SCREEN_HEIGHT
+                width + ASTEROID_MAX_RADIUS, y * height
             ),
         ],
         [
             pygame.Vector2(0, 1),
-            lambda x: pygame.Vector2(x * SCREEN_WIDTH, -ASTEROID_MAX_RADIUS),
+            lambda x: pygame.Vector2(x * width, -ASTEROID_MAX_RADIUS),
         ],
         [
             pygame.Vector2(0, -1),
             lambda x: pygame.Vector2(
-                x * SCREEN_WIDTH, SCREEN_HEIGHT + ASTEROID_MAX_RADIUS
+                x * width, height + ASTEROID_MAX_RADIUS
             ),
         ],
     ]
-
-    def __init__(self, player_position):
-        pygame.sprite.Sprite.__init__(self, self.containers)
-        self.spawn_timer = ASTEROID_SPAWN_RATE
-        self.player_position = player_position
     
     def update(self, player_moved):
         self.player_position = player_moved
 
-    def clear(self, CircleShape):
+    def clear(self, CircleShape, width, height):
         if (CircleShape.position.x < 0 - ASTEROID_MAX_RADIUS * 4
-           or CircleShape.position.x > SCREEN_WIDTH + ASTEROID_MAX_RADIUS * 4
+           or CircleShape.position.x > width + ASTEROID_MAX_RADIUS * 4
            or CircleShape.position.y < 0 - ASTEROID_MAX_RADIUS * 4
-           or CircleShape.position.y > SCREEN_HEIGHT + ASTEROID_MAX_RADIUS * 4):
+           or CircleShape.position.y > height + ASTEROID_MAX_RADIUS * 4):
             CircleShape.kill()
 
     def spawn(self, dt, CircleShape, ignore_timer=False):

@@ -36,7 +36,7 @@ def main():
     game = "running"
 
     player = Player(width / 2, height / 2)
-    asteroidField = AsteroidField(player.position)
+    asteroidField = AsteroidField(player.position, width, height)
     game_over = Text("Game Over", (width // 2, height // 2), 96, (255, 0, 0))
     press_key = Text("Press Enter to Play Again or any other key to exit", (width // 2, height // 2), 48, (255, 0, 0))
     score = Text(f"Score: {points}", (50, height - 20), 30, (255, 0, 0))
@@ -65,7 +65,7 @@ def main():
                 boss_points += 100
 
             for asteroid in asteroids:
-                asteroidField.clear(asteroid)
+                asteroidField.clear(asteroid, width, height)
                 if asteroid.collision(player) == 1:
                     remaining_lives -= 1
                     lives.update_text(f"Lives: {remaining_lives}")
@@ -89,7 +89,7 @@ def main():
                     if asteroid.collision(other) == 1:
                         asteroid.bounce(other)
                 for shot in shots:
-                    asteroidField.clear(shot)
+                    asteroidField.clear(shot, width, height)
                     if asteroid.collision(shot) == 1:
                         shot.kill()
                         asteroid.hits += 1
