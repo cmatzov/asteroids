@@ -14,6 +14,7 @@ def main():
     info = pygame.display.Info()
     width, height = info.current_w, info.current_h
     screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
+    image = pygame.image.load("space.jpg").convert()
     clock = pygame.time.Clock()
 
     drawables = pygame.sprite.Group()
@@ -54,7 +55,7 @@ def main():
             asteroidField.update(player.position)
             asteroidField.spawn(dt, Asteroid)
 
-            screen.fill("black")
+            screen.blit(image, (0, 0))
 
             score.draw(screen, 0)
             lives.draw(screen, 0)

@@ -1,5 +1,4 @@
 import random
-import math
 from asteroid import Asteroid
 from constants import *
 
@@ -27,7 +26,7 @@ class Boss(Asteroid):
         ]
         for angle in angles:
             asteroid = Asteroid(self.position.x, self.position.y, ASTEROID_MAX_RADIUS)
-            asteroid.velocity = self.velocity.rotate(angle) * 1.2
+            asteroid.velocity = self.velocity.rotate(angle) * 2
 
     def bounce_away_other(self, other):
         delta = other.position - self.position
