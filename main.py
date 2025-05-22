@@ -14,7 +14,7 @@ def main():
     info = pygame.display.Info()
     width, height = info.current_w, info.current_h
     screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
-    image = pygame.image.load("space.jpg").convert()
+    image = pygame.image.load("assets/images/space.jpg").convert()
     clock = pygame.time.Clock()
 
     drawables = pygame.sprite.Group()

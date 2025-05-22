@@ -6,7 +6,7 @@ class Text():
         self.text = text
         self.position = position
         self.color = color
-        self.font = pygame.font.Font("fonts/star_jedi/starjedi/Starjhol.ttf", font_size)
+        self.font = pygame.font.Font("assets/fonts/star_jedi/starjedi/Starjhol.ttf", font_size)
         self.rendered_text = self.font.render(self.text, True, self.color)
 
     def draw(self, surface, y):
