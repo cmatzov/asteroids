@@ -7,15 +7,6 @@ from asteroidfield import AsteroidField
 from constants import *
 from bullets import Shot
 from text import Text
-from dataclasses import dataclass
-
-@dataclass
-class Points():
-    def __init__(self, points):
-        self.points = points
-    
-    def return_score(self):
-        return self.points
 
 class Game():
     def __init__(self):
@@ -37,7 +28,6 @@ class Game():
         self.width, self.height = info.current_w, info.current_h
         self.clock = pygame.time.Clock()
 
-        self.points = 0
         self.boss_points = 100
         self.wait_time = 0
 
@@ -46,7 +36,7 @@ class Game():
 
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
         self.image = pygame.image.load("assets/images/space.jpg").convert()
-        self.score = Text(f"score: {self.points}", (100, self.height - 20), 30, (255, 255, 0))
+        self.score = Text(f"score: {self.player.points}", (100, self.height - 20), 30, (255, 255, 0))
         self.lives = Text(f"lives: {self.player.lives}", (self.width - 100, self.height - 20), 30, (255, 255, 0))
 
     def start(self):
@@ -77,7 +67,7 @@ class Game():
             self.game_over(dt)
 
     def play(self, dt):
-        if self.points >= self.boss_points:
+        if self.player.points >= self.boss_points:
             self.asteroidField.spawn(dt, Boss, ignore_timer=True)
             self.boss_points += 100
 
@@ -110,12 +100,12 @@ class Game():
                     shot.kill()
                     asteroid.health -= shot.damage
                     if asteroid.health == 0:
-                        self.points += asteroid.update_score(asteroid.radius)
+                        self.player.points += asteroid.update_score(asteroid.radius)
                         asteroid.split()
-                        self.score.update_text(f"Score: {self.points}")
+                        self.score.update_text(f"Score: {self.player.points}")
 
     def game_over(self, dt):
-        score = Text(f"Your score: {self.points}", (self.width // 2, self.height // 2), 30, (255, 255, 0))
+        score = Text(f"Your score: {self.player.points}", (self.width // 2, self.height // 2), 30, (255, 255, 0))
         game_over = Text("game over", (self.width // 2, self.height // 2), 96, (255, 255, 0))
         press_key = Text("press any key to continue or enter to play again", (self.width // 2, self.height // 2), 48, (255, 255, 0))
         for event in pygame.event.get():
