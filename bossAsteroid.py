@@ -6,6 +6,7 @@ class Boss(Asteroid):
     def __init__(self, x, y):
         self.radius = ASTEROID_MAX_RADIUS * 3
         super().__init__(x, y, self.radius)
+        self.number_of_points = random.randint(20,30)
 
     @staticmethod
     def spawn(Coordinates):

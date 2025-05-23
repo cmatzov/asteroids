@@ -9,13 +9,14 @@ class Asteroid(CircleShape):
         self.hits = 0
         self.health = self.radius / 20
         self.rotation = 0
+        self.number_of_points = random.randint(12,20)
         self.shape = self.generate_polygon_shape()
 
     def generate_polygon_shape(self):
         points = []
-        for i in range(10):
-            angle = i * (360 / 10)
-            distance = random.uniform(self.radius * 0.6, self.radius)
+        for i in range(self.number_of_points):
+            angle = i * (360 / self.number_of_points)
+            distance = random.uniform(self.radius * 0.8, self.radius)
             point = pygame.Vector2(0, -distance).rotate(angle)
             points.append(point)
         return points
