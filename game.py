@@ -117,7 +117,7 @@ class Game():
     def game_over(self, dt):
         score = Text(f"Your score: {self.points}", (self.width // 2, self.height // 2), 30, (255, 255, 0))
         game_over = Text("game over", (self.width // 2, self.height // 2), 96, (255, 255, 0))
-        press_key = Text("press any key to continue...", (self.width // 2, self.height // 2), 48, (255, 255, 0))
+        press_key = Text("press any key to continue or enter to play again", (self.width // 2, self.height // 2), 48, (255, 255, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
@@ -131,6 +131,8 @@ class Game():
         self.wait_time += dt
         if self.wait_time > 1.5:
             keys = pygame.key.get_pressed()
-            if any(keys):
+            if any(keys) and not keys[pygame.K_RETURN]:
                 sys.exit()
+            if keys[pygame.K_RETURN]:
+                Game().start()
         pygame.display.flip()
