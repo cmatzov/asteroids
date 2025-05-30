@@ -4,6 +4,7 @@ from player import Player
 from asteroid import Asteroid
 from bossAsteroid import Boss
 from asteroidfield import AsteroidField
+from particles import Particle
 from constants import *
 from bullets import Shot
 from text import Text
@@ -17,12 +18,14 @@ class Game():
         self.asteroids = pygame.sprite.Group()
         self.shots = pygame.sprite.Group()
         self.map = pygame.sprite.Group()
+        self.particles = pygame.sprite.Group()
 
         Asteroid.containers = (self.asteroids, self.updatables, self.drawables)
         AsteroidField.containers = (self.map)
         Boss.containers = (self.asteroids, self.updatables, self.drawables)
         Player.containers = (self.drawables, self.updatables)
         Shot.containers = (self.shots, self.drawables, self.updatables)
+        Particle.containers = (self.particles)
 
         info = pygame.display.Info()
         self.width, self.height = info.current_w, info.current_h
@@ -51,6 +54,7 @@ class Game():
                     sys.exit()
 
                 self.updatables.update(dt)
+                self.particles.update(dt)
                 self.asteroidField.update(self.player.position)
                 self.asteroidField.spawn(dt, Asteroid)
 
@@ -62,6 +66,7 @@ class Game():
 
                 for drawable in self.drawables:
                     drawable.draw(self.screen)
+                self.particles.draw(self.screen)
                 dt = self.clock.tick(60) / 1000
                 pygame.display.flip()
             self.game_over(dt)
@@ -74,6 +79,7 @@ class Game():
         for asteroid in self.asteroids:
             self.asteroidField.clear(asteroid, self.width, self.height)
             if asteroid.collision(self.player) == 1:
+                asteroid.particle_effect()
                 self.player.lives -= 1
                 self.lives.update_text(f"Lives: {self.player.lives}")
                 asteroid.kill()
@@ -98,6 +104,7 @@ class Game():
                 self.asteroidField.clear(shot, self.width, self.height)
                 if asteroid.collision(shot) == 1:
                     shot.kill()
+                    asteroid.particle_effect()
                     asteroid.health -= shot.damage
                     if asteroid.health == 0:
                         self.player.points += asteroid.update_score(asteroid.radius)

@@ -2,6 +2,7 @@ import pygame
 from circleshape import CircleShape
 from constants import *
 from bullets import Shot
+from particles import Trail
 
 class Player(CircleShape):
     def __init__(self, x, y):
@@ -24,7 +25,7 @@ class Player(CircleShape):
         return [a, b, c]
     
     def draw(self, screen):
-        pygame.draw.polygon(screen, "white", self.triangle(), 2)
+        pygame.draw.polygon(screen, "white", self.triangle())
 
     def update(self, dt):
         self.shoot_timer -= dt
@@ -55,6 +56,7 @@ class Player(CircleShape):
     def move(self, dt):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         self.position += forward * self.player_speed * dt
+        self.movement_trail(self.position)
     
     def speed_boost(self, dt):
         self.player_speed = 600
@@ -77,7 +79,6 @@ class Player(CircleShape):
 
         """
 
-
     def shoot(self):
         if self.shoot_timer > 0:
             return
@@ -88,3 +89,14 @@ class Player(CircleShape):
         else:
             self.bullet_speed = PLAYER_SHOOT_SPEED
         shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * self.bullet_speed
+    
+    def movement_trail(self, position):
+        position1, position2 = self.triangle()[2], self.triangle()[1]
+        Trail.spawn(position, position1), Trail.spawn(position, position2)
+
+        """ one point trail
+        position1, position2 = self.triangle()[2], self.triangle()[1]
+        middle_x, middle_y = (position1[0] + position2[0]) / 2, (position1[1] + position2[1]) / 2
+        middle_point = [middle_x, middle_y]
+        Trail.spawn(position, middle_point)
+        """
