@@ -3,6 +3,7 @@ import random
 from constants import *
 from circleshape import CircleShape
 from particles import Particle
+from powerups import Shield
 
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
@@ -43,6 +44,8 @@ class Asteroid(CircleShape):
     def split(self):
         self.kill()
         if self.radius <= ASTEROID_MIN_RADIUS:
+            if random.random() < 0.1:
+                Shield.drop_powerup(self.position)
             return
         self.radius -= ASTEROID_MIN_RADIUS
         asteroid = Asteroid(self.position.x, self.position.y, self.radius)

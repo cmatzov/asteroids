@@ -8,6 +8,7 @@ from particles import Particle
 from constants import *
 from bullets import Shot
 from text import Text
+from powerups import Shield, PlayerShield
 
 class Game():
     def __init__(self):
@@ -19,6 +20,7 @@ class Game():
         self.shots = pygame.sprite.Group()
         self.map = pygame.sprite.Group()
         self.particles = pygame.sprite.Group()
+        self.powerups = pygame.sprite.Group()
 
         Asteroid.containers = (self.asteroids, self.updatables, self.drawables)
         AsteroidField.containers = (self.map)
@@ -26,6 +28,7 @@ class Game():
         Player.containers = (self.drawables, self.updatables)
         Shot.containers = (self.shots, self.drawables, self.updatables)
         Particle.containers = (self.particles)
+        Shield.containers = (self.powerups)
 
         info = pygame.display.Info()
         self.width, self.height = info.current_w, info.current_h
@@ -36,6 +39,7 @@ class Game():
 
         self.player = Player(self.width / 2, self.height / 2)
         self.asteroidField = AsteroidField(self.player.position, self.width, self.height)
+        self.player_shield = None
 
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
         self.image = pygame.image.load("assets/images/space.jpg").convert()
@@ -55,8 +59,11 @@ class Game():
 
                 self.updatables.update(dt)
                 self.particles.update(dt)
+                self.powerups.update(self.player.position)
                 self.asteroidField.update(self.player.position)
                 self.asteroidField.spawn(dt, Asteroid)
+                if self.player_shield:
+                    self.player_shield.update(self.player.position)
 
                 self.screen.blit(self.image, (0, 0))
                 self.score.draw(self.screen, 0)
@@ -67,6 +74,9 @@ class Game():
                 for drawable in self.drawables:
                     drawable.draw(self.screen)
                 self.particles.draw(self.screen)
+                self.powerups.draw(self.screen)
+                if self.player_shield:
+                    self.player_shield.draw(self.screen)
                 dt = self.clock.tick(60) / 1000
                 pygame.display.flip()
             self.game_over(dt)
@@ -78,6 +88,12 @@ class Game():
 
         for asteroid in self.asteroids:
             self.asteroidField.clear(asteroid, self.width, self.height)
+            if self.player_shield and asteroid.collision(self.player_shield) == 1:
+                self.player_shield.health -= 1
+                asteroid.particle_effect()
+                asteroid.kill()
+                if self.player_shield.health == 0:
+                    self.player_shield = None
             if asteroid.collision(self.player) == 1:
                 asteroid.particle_effect()
                 self.player.lives -= 1
@@ -110,6 +126,10 @@ class Game():
                         self.player.points += asteroid.update_score(asteroid.radius)
                         asteroid.split()
                         self.score.update_text(f"Score: {self.player.points}")
+        for powerup in self.powerups:
+            if self.player.collision(powerup):
+                powerup.kill()
+                self.player_shield = PlayerShield(self.player.position, self.screen)
 
     def game_over(self, dt):
         score = Text(f"Your score: {self.player.points}", (self.width // 2, self.height // 2), 30, (255, 255, 0))
