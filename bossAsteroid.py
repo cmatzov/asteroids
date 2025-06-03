@@ -17,7 +17,7 @@ class Boss(Asteroid):
         boss = Boss(position.x, position.y)
         boss.velocity = velocity
 
-    def split(self):
+    def split(self, screen):
         self.kill()
         angles = [
             random.uniform(10, 30),

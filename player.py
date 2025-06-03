@@ -3,9 +3,10 @@ from circleshape import CircleShape
 from constants import *
 from bullets import Shot
 from particles import Trail
+from powerups import Shield
 
 class Player(CircleShape):
-    def __init__(self, x, y):
+    def __init__(self, x, y, screen):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.shoot_timer = 0
@@ -15,6 +16,9 @@ class Player(CircleShape):
         self.bullet_speed = PLAYER_SHOOT_SPEED
         self.boost_duration = 5
         self.recharging_boost = 0
+        self.perks = []
+        self.shield = None
+        self.screen = screen
 
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -41,6 +45,12 @@ class Player(CircleShape):
             self.move(-dt)
         if keys[pygame.K_SPACE]:
             self.shoot()
+        if keys[pygame.K_RETURN]:
+            for perk in self.perks:
+                print(f"player list {str(self.perks)}")
+                if isinstance(perk, Shield):
+                    self.perks.remove(perk)
+                    self.shield_up()
         if keys[pygame.K_LSHIFT]:
             self.speed_boost(dt)
         else:
@@ -49,6 +59,12 @@ class Player(CircleShape):
         """ Recharge boost during every update instead of when SHIFT is pressed """
         if self.boost_duration <= 0:
             self.recharging_boost += dt
+
+        if self.shield and self.shield.health == 0:
+            self.shield = None
+
+    def shield_up(self):
+        self.shield = Shield(self.position, self.screen, is_active=True)
 
     def rotate(self, dt):
         self.rotation += PLAYER_TURN_SPEED * dt

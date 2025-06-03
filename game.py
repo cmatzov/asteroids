@@ -8,7 +8,7 @@ from particles import Particle
 from constants import *
 from bullets import Shot
 from text import Text
-from powerups import Shield, PlayerShield
+from powerups import *
 
 class Game():
     def __init__(self):
@@ -29,6 +29,7 @@ class Game():
         Shot.containers = (self.shots, self.drawables, self.updatables)
         Particle.containers = (self.particles)
         Shield.containers = (self.powerups)
+        BonusLife.containers = (self.powerups)
 
         info = pygame.display.Info()
         self.width, self.height = info.current_w, info.current_h
@@ -37,14 +38,14 @@ class Game():
         self.boss_points = 100
         self.wait_time = 0
 
-        self.player = Player(self.width / 2, self.height / 2)
-        self.asteroidField = AsteroidField(self.player.position, self.width, self.height)
-        self.player_shield = None
-
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
+        self.player = Player(self.width / 2, self.height / 2, self.screen)
+        self.asteroidField = AsteroidField(self.player.position, self.width, self.height)
+
         self.image = pygame.image.load("assets/images/space.jpg").convert()
         self.score = Text(f"score: {self.player.points}", (100, self.height - 20), 30, (255, 255, 0))
         self.lives = Text(f"lives: {self.player.lives}", (self.width - 100, self.height - 20), 30, (255, 255, 0))
+        # self.player_perks = Text(f"Available Perks: {self.player.perks}", (120, 10), 25, (255, 255, 0))
 
     def start(self):
         dt = 0
@@ -62,12 +63,11 @@ class Game():
                 self.powerups.update(self.player.position)
                 self.asteroidField.update(self.player.position)
                 self.asteroidField.spawn(dt, Asteroid)
-                if self.player_shield:
-                    self.player_shield.update(self.player.position)
 
                 self.screen.blit(self.image, (0, 0))
                 self.score.draw(self.screen, 0)
                 self.lives.draw(self.screen, 0)
+                # self.player_perks.draw(self.screen, 0)
 
                 self.play(dt)
 
@@ -75,8 +75,9 @@ class Game():
                     drawable.draw(self.screen)
                 self.particles.draw(self.screen)
                 self.powerups.draw(self.screen)
-                if self.player_shield:
-                    self.player_shield.draw(self.screen)
+                if self.player.shield and self.player.shield.is_active:
+                    self.player.shield.draw()
+
                 dt = self.clock.tick(60) / 1000
                 pygame.display.flip()
             self.game_over(dt)
@@ -88,13 +89,14 @@ class Game():
 
         for asteroid in self.asteroids:
             self.asteroidField.clear(asteroid, self.width, self.height)
-            if self.player_shield and asteroid.collision(self.player_shield) == 1:
-                self.player_shield.health -= 1
-                asteroid.particle_effect()
-                asteroid.kill()
-                if self.player_shield.health == 0:
-                    self.player_shield = None
-            if asteroid.collision(self.player) == 1:
+            if self.player.shield:
+                self.player.shield.add(Shield.containers)
+                if asteroid.collision(self.player.shield) == 1:
+                    self.player.shield.hit()
+                    asteroid.particle_effect()
+                    asteroid.kill()
+                    continue
+            if asteroid.collision(self.player):
                 asteroid.particle_effect()
                 self.player.lives -= 1
                 self.lives.update_text(f"Lives: {self.player.lives}")
@@ -124,12 +126,19 @@ class Game():
                     asteroid.health -= shot.damage
                     if asteroid.health == 0:
                         self.player.points += asteroid.update_score(asteroid.radius)
-                        asteroid.split()
+                        asteroid.split(self.screen)
                         self.score.update_text(f"Score: {self.player.points}")
         for powerup in self.powerups:
-            if self.player.collision(powerup):
-                powerup.kill()
-                self.player_shield = PlayerShield(self.player.position, self.screen)
+            if isinstance(powerup, BonusLife):
+                if self.player.collision(powerup):
+                    self.player.lives += 1
+                    self.lives.update_text(f"Lives: {self.player.lives}")
+                    powerup.kill()
+            if powerup.is_active == False and not isinstance(powerup, BonusLife):
+                if self.player.collision(powerup):
+                    self.player.perks.append(powerup)
+                    # self.player_perks.update_text(f"Lives: {self.player.perks}")
+                    powerup.kill()
 
     def game_over(self, dt):
         score = Text(f"Your score: {self.player.points}", (self.width // 2, self.height // 2), 30, (255, 255, 0))
