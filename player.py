@@ -16,7 +16,7 @@ class Player(CircleShape):
         self.bullet_speed = PLAYER_SHOOT_SPEED
         self.boost_duration = 5
         self.recharging_boost = 0
-        self.perks = []
+        self.shield_num = []
         self.shield = None
         self.screen = screen
 
@@ -46,11 +46,13 @@ class Player(CircleShape):
         if keys[pygame.K_SPACE]:
             self.shoot()
         if keys[pygame.K_RETURN]:
-            for perk in self.perks:
-                print(f"player list {str(self.perks)}")
+            for perk in self.shield_num:
                 if isinstance(perk, Shield):
-                    self.perks.remove(perk)
-                    self.shield_up()
+                    if self.shield:
+                        pass
+                    else:
+                        self.shield_up()
+                        self.shield_num.remove(perk)
         if keys[pygame.K_LSHIFT]:
             self.speed_boost(dt)
         else:
