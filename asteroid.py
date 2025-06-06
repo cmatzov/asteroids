@@ -44,7 +44,7 @@ class Asteroid(CircleShape):
     def split(self, screen):
         self.kill()
         if self.radius <= ASTEROID_MIN_RADIUS:
-            if random.random() < 0.1:
+            if random.random() < 0.15:
                 random.choice([
                     lambda: Shield(self.position, screen),
                     lambda: BonusLife(self.position).draw()

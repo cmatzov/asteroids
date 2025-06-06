@@ -42,7 +42,7 @@ class Trail(Particle):
 
     @staticmethod
     def spawn(direction, spawn_pos):
-        for point in spawn_pos:
+        for _ in spawn_pos:
             color = random.choice([(105,105,105), (173, 230, 230), (211,211,211)])
             direction = direction.normalize()
             speed = -100

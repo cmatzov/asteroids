@@ -1,5 +1,6 @@
 import random
 from asteroid import Asteroid
+from powerups import MissilePowerup
 from constants import *
 
 class Boss(Asteroid):
@@ -28,6 +29,8 @@ class Boss(Asteroid):
         for angle in angles:
             asteroid = Asteroid(self.position.x, self.position.y, ASTEROID_MAX_RADIUS)
             asteroid.velocity = self.velocity.rotate(angle) * 2
+        if random.random() < 0.5:
+            MissilePowerup(self.position).draw(screen)
 
     def bounce_away_other(self, other):
         delta = other.position - self.position

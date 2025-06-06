@@ -6,7 +6,7 @@ from bossAsteroid import Boss
 from asteroidfield import AsteroidField
 from particles import Particle
 from constants import *
-from bullets import Shot
+from bullets import Shot, Missile
 from text import Text
 from icons import Icons
 from powerups import *
@@ -28,9 +28,11 @@ class Game():
         Boss.containers = (self.asteroids, self.updatables, self.drawables)
         Player.containers = (self.drawables, self.updatables)
         Shot.containers = (self.shots, self.drawables, self.updatables)
+        Missile.Containers = (self.shots, self.drawables, self.updatables)
         Particle.containers = (self.particles)
         Shield.containers = (self.powerups)
         BonusLife.containers = (self.powerups)
+        MissilePowerup.containers = (self.powerups)
 
         info = pygame.display.Info()
         self.width, self.height = info.current_w, info.current_h
@@ -40,30 +42,41 @@ class Game():
         self.wait_time = 0
         self.shield_num = 0
 
+        self.seconds = 0
+        self.minutes = 0
+
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
-        self.player = Player(self.width / 2, self.height / 2, self.screen)
+        self.player = Player(self.width / 2, self.height / 2, self.screen, self.asteroids)
         self.asteroidField = AsteroidField(self.player.position, self.width, self.height)
 
         self.image = pygame.image.load("assets/images/space.jpg").convert()
         self.shield_icon = Icons("assets/images/shield.png", (30, 52), (30, 30))
         self.heart_icon = Icons("assets/images/heart.png", (20, 3), (50, 50))
+        self.missile_icon = Icons("assets/images/missile.png", (20, 90), (50, 50))
         self.score = Text(f"score: {self.player.points}", (100, self.height - 20), 30, (255, 255, 0))
         self.lives = Text(f"x{self.player.lives}", (90, 25), 35, (255, 255, 0))
         self.shields = Text(f"x{self.shield_num}", (90, 65), 35, (255, 255, 0))
+        self.missile_count = Text(f"x{self.player.missiles}", (90, 105), 35, (255, 255, 0))
+        self.get_timer = Text(f"{self.minutes}:{int(self.seconds)}", (self.width / 2, 65), 50, (255, 255, 0))
 
     def guid(self):
         self.score.draw(self.screen, 0)
         self.lives.draw(self.screen, 0)
         self.shields.draw(self.screen, 0)
+        self.missile_count.draw(self.screen, 0)
         self.shield_icon.draw(self.screen)
         self.heart_icon.draw(self.screen)
+        self.missile_icon.draw(self.screen)
+        self.get_timer.draw(self.screen, 0)
     
     def update_guid(self):
         self.score.update_text(f"Score: {self.player.points}")
         self.lives.update_text(f"x{self.player.lives}")
         self.shield_num = len(self.player.shield_num)
-        print(self.shield_num)
         self.shields.update_text(f"x{self.shield_num}")
+        self.missile_count.update_text(f"x{self.player.missiles}")
+        self.timer()
+        self.get_timer.update_text(f"{self.minutes}:{int(self.seconds):02d}")
 
     def start(self):
         dt = 0
@@ -93,9 +106,15 @@ class Game():
                 self.powerups.draw(self.screen)
                 if self.player.shield and self.player.shield.is_active:
                     self.player.shield.draw()
-                dt = self.clock.tick(60) / 1000
+                dt = self.clock.tick(0) / 1000
                 pygame.display.flip()
             self.game_over(dt)
+
+    def timer(self):
+        self.seconds += self.clock.get_time() / 1000
+        if self.seconds > 59:
+            self.seconds = 0
+            self.minutes += 1
 
     def play(self, dt):
         if self.player.points >= self.boss_points:
@@ -138,7 +157,7 @@ class Game():
                     shot.kill()
                     asteroid.particle_effect()
                     asteroid.health -= shot.damage
-                    if asteroid.health == 0:
+                    if asteroid.health <= 0:
                         self.player.points += asteroid.update_score(asteroid.radius)
                         asteroid.split(self.screen)
         for powerup in self.powerups:
@@ -146,9 +165,13 @@ class Game():
                 if self.player.collision(powerup):
                     self.player.lives += 1
                     powerup.kill()
-            if powerup.is_active == False and not isinstance(powerup, BonusLife):
+            if powerup.is_active == False and isinstance(powerup, Shield):
                 if self.player.collision(powerup):
                     self.player.shield_num.append(powerup)
+                    powerup.kill()
+            if isinstance(powerup, MissilePowerup):
+                if self.player.collision(powerup):
+                    self.player.missiles += 5
                     powerup.kill()
 
     def game_over(self, dt):

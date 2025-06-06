@@ -1,0 +1,8 @@
+- add blast effect on asteroids when destroyed - done
+- add effects for player movement - done - can be improved
+- add power-ups - shield done, bonus life done - can be added increase of shot rate 
+- add power-ups list on screen - done
+- add timer - done
+- add weapons - missile done
+- use masks for hitboxes
+- add leaderboard with database

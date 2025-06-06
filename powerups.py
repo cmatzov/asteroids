@@ -93,3 +93,23 @@ class BonusLife(CircleShape):
             y += self.image.get_height() // 2
             points.append((x, y))
         pygame.draw.polygon(self.image, self.color, points)
+
+class MissilePowerup(CircleShape):
+    def __init__(self, center):
+        self.radius = 20
+        super().__init__(center.x, center.y, self.radius)
+        self.center = center
+        self.surface_size = self.radius * 2
+        self.image = pygame.Surface((self.surface_size, self.surface_size), pygame.SRCALPHA)
+        self.image.set_colorkey("white")
+        self.rect = self.image.get_rect(center=center)
+        self.is_active = False
+
+        self.missile_icon = pygame.image.load("assets/images/missile.png").convert_alpha()
+        self.missile_icon = pygame.transform.smoothscale(self.missile_icon, (60, 60))
+
+        icon_rect = self.missile_icon.get_rect(center=(self.surface_size // 1.5, self.surface_size // 1.5))
+        self.image.blit(self.missile_icon, icon_rect)
+
+    def update(self, dt):
+        self.rect.center = self.center

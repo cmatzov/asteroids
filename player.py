@@ -1,12 +1,12 @@
 import pygame
 from circleshape import CircleShape
 from constants import *
-from bullets import Shot
+from bullets import Shot, Missile
 from particles import Trail
 from powerups import Shield
 
 class Player(CircleShape):
-    def __init__(self, x, y, screen):
+    def __init__(self, x, y, screen, asteroids):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.shoot_timer = 0
@@ -17,8 +17,10 @@ class Player(CircleShape):
         self.boost_duration = 5
         self.recharging_boost = 0
         self.shield_num = []
+        self.missiles = 0
         self.shield = None
         self.screen = screen
+        self.asteroids = asteroids
 
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -44,6 +46,8 @@ class Player(CircleShape):
         if keys[pygame.K_s]:
             self.move(-dt)
         if keys[pygame.K_SPACE]:
+            if self.missiles > 0:
+                self.shoot_missile()
             self.shoot()
         if keys[pygame.K_RETURN]:
             for perk in self.shield_num:
@@ -107,6 +111,14 @@ class Player(CircleShape):
         else:
             self.bullet_speed = PLAYER_SHOOT_SPEED
         shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * self.bullet_speed
+    
+    def shoot_missile(self):
+        if self.shoot_timer > 0:
+            return
+        self.shoot_timer = PLAYER_SHOOT_COOLDOWN * 5
+        missile = Missile(self.triangle()[0], self.triangle()[0], self.asteroids, self.position, self.rotation)
+        missile.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * (self.bullet_speed)
+        self.missiles -= 1
     
     def movement_trail(self, position):
         position1, position2 = self.triangle()[2], self.triangle()[1]
